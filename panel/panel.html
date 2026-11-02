@@ -1,0 +1,1762 @@
+```html
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>大世界 · 通用常识面板</title>
+<style>
+  :root {
+    --bg: #0e0a09;
+    --panel: #1a1412;
+    --panel-2: #241c19;
+    --line: rgba(212, 175, 55, 0.18);
+    --line-strong: rgba(212, 175, 55, 0.38);
+    --text: #efe4d6;
+    --text-2: #b7a894;
+    --text-3: #8e8072;
+    --accent: #d4af37;
+    --accent-2: #f3e5ab;
+    --ok: #8fd6a8;
+    --warn: #e8b465;
+    --danger: #c94a53;
+    --radius: 12px;
+    --radius-sm: 6px;
+    --shadow: 0 14px 40px rgba(0, 0, 0, 0.55);
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Noto Sans SC", "Microsoft YaHei", sans-serif;
+    --serif: "Noto Serif SC", SimSun, serif;
+    --mono: "SF Mono", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { width: 100%; margin: 0; padding: 0; }
+  body {
+    background: transparent;
+    font-family: var(--sans);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .jz-wrap { padding: 10px 8px; }
+  .jz {
+    max-width: 760px;
+    margin: 0 auto;
+    border-radius: var(--radius);
+    overflow: hidden;
+    background: linear-gradient(176deg, var(--panel) 0%, var(--bg) 92%);
+    border: 1px solid var(--line);
+    box-shadow: var(--shadow);
+  }
+
+  /* 顶部导航与自证栏 */
+  .jz-hd {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--line);
+    background: rgba(212, 175, 55, 0.05);
+    flex-wrap: wrap;
+  }
+  .jz-hd-main {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .jz-hd i.dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--accent-2);
+    box-shadow: 0 0 8px rgba(212, 175, 55, 0.4);
+    display: inline-block;
+  }
+  .jz-hd b {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: var(--accent-2);
+  }
+
+  /* 注入自证徽章 */
+  .jz-cert-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    padding: 2px 9px;
+    border-radius: 999px;
+    border: 1px solid rgba(143, 214, 168, 0.35);
+    background: rgba(143, 214, 168, 0.10);
+    color: var(--ok);
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.16s ease, border-color 0.16s ease, transform 0.16s ease;
+  }
+  .jz-cert-badge:hover {
+    background: rgba(143, 214, 168, 0.20);
+    border-color: rgba(143, 214, 168, 0.55);
+    transform: translateY(-1px);
+  }
+  .jz-cert-badge:active { transform: translateY(0); }
+  .jz-cert-badge:focus-visible { outline: 2px solid var(--ok); outline-offset: 2px; }
+  .jz-cert-badge.warn {
+    border-color: rgba(232, 180, 101, 0.4);
+    background: rgba(232, 180, 101, 0.12);
+    color: var(--warn);
+  }
+  .jz-cert-badge i.pulse {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+    display: inline-block;
+    animation: jzPulse 2s infinite ease-in-out;
+  }
+  @keyframes jzPulse {
+    0%, 100% { opacity: 0.9; transform: scale(1); }
+    50% { opacity: 0.3; transform: scale(0.75); }
+  }
+
+  .jz-hd-right {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .jz-chip {
+    font-size: 10.5px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: var(--text-2);
+    white-space: nowrap;
+    background: rgba(255, 255, 255, 0.03);
+  }
+
+  .jz-bd { padding: 14px 14px 16px; }
+
+  /* 核心充能仪表盘 */
+  .jz-dashboard {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+    padding: 12px;
+    border-radius: var(--radius-sm);
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--line);
+  }
+  .jz-metric-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .jz-lbl {
+    font-size: 11.5px;
+    color: var(--text-2);
+    letter-spacing: 0.06em;
+    flex: none;
+    min-width: 68px;
+  }
+  .jz-num-box {
+    display: flex;
+    align-items: baseline;
+    gap: 2px;
+    min-width: 64px;
+  }
+  .jz-num {
+    font-size: 18px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    color: #fff;
+    font-family: var(--mono);
+  }
+  .jz-num small {
+    font-size: 10.5px;
+    font-weight: 400;
+    color: var(--text-3);
+  }
+  .jz-bar {
+    flex: 1;
+    min-width: 120px;
+    height: 8px;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.08);
+    overflow: hidden;
+  }
+  .jz-bar > i {
+    display: block;
+    height: 100%;
+    width: 0;
+    border-radius: 4px;
+    transition: width 0.35s ease;
+  }
+
+  /* 充能池槽位（硬上限3） */
+  .jz-pool-slots {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .jz-slot-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 1.5px solid var(--line-strong);
+    background: transparent;
+    transition: background 0.2s ease, box-shadow 0.2s ease;
+  }
+  .jz-slot-dot.active {
+    background: var(--accent);
+    box-shadow: 0 0 8px var(--accent);
+  }
+
+  /* 分割与标题行 */
+  .jz-sec-hd {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 16px 0 8px;
+    gap: 8px;
+  }
+  .jz-sec-title {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: var(--accent-2);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .jz-sec-title::before {
+    content: "";
+    width: 3px;
+    height: 12px;
+    background: var(--line-strong);
+    border-radius: 2px;
+    display: inline-block;
+  }
+  .jz-sec-sub {
+    font-size: 10.5px;
+    color: var(--text-3);
+  }
+
+  /* 角色状态与抗性格子 */
+  .jz-cast-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 8px;
+  }
+  .jz-char-card {
+    border-radius: var(--radius-sm);
+    background: rgba(255, 255, 255, 0.025);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-left-width: 3px;
+    padding: 9px 10px;
+    display: grid;
+    gap: 6px;
+    transition: background 0.16s ease, border-color 0.16s ease;
+  }
+  .jz-char-card:hover {
+    background: rgba(255, 255, 255, 0.04);
+  }
+  .jz-char-top {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .jz-char-avatar {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    object-fit: cover;
+    object-position: 50% 12%;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    flex: none;
+    display: block;
+    background: rgba(255, 255, 255, 0.08);
+  }
+  .jz-char-name {
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .jz-char-locked-badge {
+    margin-left: auto;
+    font-size: 10px;
+    padding: 1px 6px;
+    border-radius: 4px;
+    border: 1px solid rgba(201, 74, 83, 0.4);
+    background: rgba(201, 74, 83, 0.12);
+    color: #ffd9de;
+    white-space: nowrap;
+  }
+  .jz-char-unlocked-badge {
+    margin-left: auto;
+    font-size: 10px;
+    padding: 1px 6px;
+    border-radius: 4px;
+    border: 1px solid rgba(143, 214, 168, 0.3);
+    background: rgba(143, 214, 168, 0.08);
+    color: var(--ok);
+    white-space: nowrap;
+  }
+  .jz-char-axes {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+  .jz-axis-cell {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 10px;
+    color: var(--text-2);
+  }
+  .jz-axis-mini {
+    flex: 1;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .jz-axis-mini > i { display: block; height: 100%; border-radius: 2px; }
+  .jz-char-res {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 10px;
+    color: var(--text-3);
+    background: rgba(0, 0, 0, 0.2);
+    padding: 3px 6px;
+    border-radius: 4px;
+  }
+  .jz-char-res b { color: var(--accent-2); font-family: var(--mono); }
+  .jz-char-voice {
+    font-size: 10.5px;
+    font-style: italic;
+    color: var(--text-2);
+    line-height: 1.4;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* 台账筛选 Tab */
+  .jz-ledger-filters {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+  }
+  .jz-filter-btn {
+    border: 1px solid rgba(212, 175, 55, 0.22);
+    background: rgba(255, 255, 255, 0.02);
+    color: var(--text-2);
+    font-family: inherit;
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.16s ease;
+  }
+  .jz-filter-btn:hover {
+    background: rgba(212, 175, 55, 0.12);
+    color: var(--accent-2);
+    border-color: rgba(212, 175, 55, 0.4);
+  }
+  .jz-filter-btn:active { transform: scale(0.97); }
+  .jz-filter-btn:focus-visible { outline: 2px solid var(--line-strong); outline-offset: 2px; }
+  .jz-filter-btn.active {
+    background: rgba(212, 175, 55, 0.20);
+    border-color: var(--line-strong);
+    color: var(--accent-2);
+    font-weight: 600;
+  }
+
+  /* 常识台账列表条目 */
+  .jz-log-list { display: grid; gap: 6px; }
+  .jz-item {
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: var(--radius-sm);
+    background: rgba(255, 255, 255, 0.02);
+    padding: 8px 10px;
+    transition: background 0.16s ease, border-color 0.16s ease;
+  }
+  .jz-item:hover {
+    background: rgba(255, 255, 255, 0.035);
+  }
+  .jz-item.st-active {
+    border-left: 3px solid var(--ok);
+  }
+  .jz-item.st-closed {
+    border-left: 3px solid var(--warn);
+    opacity: 0.85;
+  }
+  .jz-item.st-revoked {
+    border-left: 3px solid var(--danger);
+    opacity: 0.65;
+  }
+  .jz-item-hd {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    margin-bottom: 4px;
+    flex-wrap: wrap;
+  }
+  .jz-item-who {
+    font-weight: 700;
+    color: var(--text);
+  }
+  .jz-item-id {
+    color: var(--text-3);
+    font-family: var(--mono);
+  }
+  .jz-tag-state {
+    font-size: 9.5px;
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-weight: 600;
+  }
+  .jz-tag-state.active {
+    background: rgba(143, 214, 168, 0.18);
+    color: var(--ok);
+    border: 1px solid rgba(143, 214, 168, 0.4);
+  }
+  .jz-tag-state.closed {
+    background: rgba(232, 180, 101, 0.18);
+    color: var(--warn);
+    border: 1px solid rgba(232, 180, 101, 0.4);
+  }
+  .jz-tag-state.revoked {
+    background: rgba(201, 74, 83, 0.18);
+    color: #ffd9de;
+    border: 1px solid rgba(201, 74, 83, 0.4);
+  }
+  .jz-item-acts {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .jz-btn {
+    border: 1px solid var(--line);
+    background: rgba(212, 175, 55, 0.09);
+    color: var(--accent-2);
+    border-radius: 5px;
+    font-size: 11px;
+    padding: 4px 10px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.16s ease, border-color 0.16s ease, transform 0.16s ease;
+    min-height: 28px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .jz-btn:hover {
+    background: rgba(212, 175, 55, 0.18);
+    border-color: var(--line-strong);
+  }
+  .jz-btn:active { transform: scale(0.97); }
+  .jz-btn:focus-visible { outline: 2px solid var(--line-strong); outline-offset: 2px; }
+  .jz-btn[disabled] { opacity: 0.4; cursor: not-allowed; pointer-events: none; }
+  .jz-btn.danger {
+    border-color: rgba(201, 74, 83, 0.4);
+    background: rgba(201, 74, 83, 0.12);
+    color: #ffd9de;
+  }
+  .jz-btn.danger:hover {
+    background: rgba(201, 74, 83, 0.24);
+    border-color: rgba(201, 74, 83, 0.6);
+  }
+  .jz-btn.success {
+    border-color: rgba(143, 214, 168, 0.4);
+    background: rgba(143, 214, 168, 0.12);
+    color: var(--ok);
+  }
+  .jz-btn.success:hover {
+    background: rgba(143, 214, 168, 0.22);
+    border-color: rgba(143, 214, 168, 0.6);
+  }
+  .jz-item-tx {
+    font-size: 12px;
+    line-height: 1.5;
+    color: var(--text);
+    word-break: break-word;
+  }
+  .jz-item.st-revoked .jz-item-tx {
+    text-decoration: line-through;
+    color: var(--text-3);
+  }
+
+  /* 撤回二次确认条 */
+  .jz-confirm-row {
+    margin-top: 6px;
+    padding: 6px 8px;
+    border-radius: 5px;
+    background: rgba(201, 74, 83, 0.12);
+    border: 1px solid rgba(201, 74, 83, 0.35);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .jz-confirm-tx {
+    font-size: 11px;
+    color: #ffd9de;
+    flex: 1;
+    min-width: 140px;
+  }
+
+  /* 新增注入命令栏 */
+  .jz-inject-bar {
+    display: flex;
+    gap: 8px;
+    margin-top: 14px;
+    flex-wrap: wrap;
+  }
+  .jz-inject-bar select, .jz-inject-bar input {
+    font-family: inherit;
+    font-size: 12px;
+    color: var(--text);
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 6px;
+    padding: 6px 9px;
+    outline: none;
+    min-height: 32px;
+  }
+  .jz-inject-bar select {
+    min-width: 90px;
+    background: var(--panel-2);
+  }
+  .jz-inject-bar select:focus, .jz-inject-bar input:focus {
+    border-color: var(--line-strong);
+  }
+  .jz-inject-bar input {
+    flex: 1;
+    min-width: 160px;
+  }
+  .jz-inject-bar input::placeholder { color: var(--text-3); }
+
+  /* 错误诊断与自报行 */
+  .jz-msg {
+    margin-top: 10px;
+    font-size: 11.5px;
+    color: var(--text-2);
+    min-height: 1.2em;
+    padding: 4px 6px;
+    border-radius: 4px;
+  }
+  .jz-msg[data-t="ok"] { color: var(--ok); background: rgba(143, 214, 168, 0.08); }
+  .jz-msg[data-t="warn"] { color: var(--warn); background: rgba(232, 180, 101, 0.08); }
+  .jz-msg[data-t="err"] { color: var(--danger); background: rgba(201, 74, 83, 0.12); border: 1px solid rgba(201, 74, 83, 0.3); }
+
+  .jz-err-panel {
+    display: none;
+    margin-top: 10px;
+    padding: 10px;
+    border-radius: var(--radius-sm);
+    background: rgba(201, 74, 83, 0.12);
+    border: 1px solid var(--danger);
+  }
+  .jz-err-panel.show { display: block; }
+  .jz-err-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: #ffd9de;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 6px;
+  }
+  .jz-err-text {
+    font-size: 11px;
+    font-family: var(--mono);
+    color: #ffccd3;
+    white-space: pre-wrap;
+    word-break: break-all;
+  }
+
+  .jz-readout {
+    margin-top: 8px;
+    font-size: 10px;
+    color: var(--text-3);
+    letter-spacing: 0.02em;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    padding-top: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  .jz-readout[data-bad="1"] { color: var(--warn); }
+
+  .jz-empty {
+    font-size: 11.5px;
+    line-height: 1.6;
+    color: var(--text-3);
+    padding: 12px 6px;
+    text-align: center;
+    background: rgba(255, 255, 255, 0.015);
+    border-radius: var(--radius-sm);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation: none !important;
+      transition: none !important;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .jz-cast-grid { grid-template-columns: 1fr; }
+    .jz-hd { padding: 8px 10px; }
+    .jz-bd { padding: 10px 10px 14px; }
+    .jz-btn { min-height: 32px; }
+  }
+</style>
+</head>
+<body>
+<div class="jz-wrap">
+<div class="jz" id="jz">
+  <!-- 顶部状态与自证栏 -->
+  <div class="jz-hd">
+    <div class="jz-hd-main">
+      <i class="dot" aria-hidden="true"></i>
+      <b>常识修改系统</b>
+      <!-- 注入状态自证（注入：正常 · N 字符） -->
+      <button type="button" class="jz-cert-badge" id="jz-cert" title="点击重新校验注入状态">
+        <i class="pulse" aria-hidden="true"></i>
+        <span id="jz-cert-text">注入：检测中...</span>
+      </button>
+    </div>
+    <div class="jz-hd-right">
+      <span class="jz-chip" id="jz-total">常识 0 条</span>
+      <span class="jz-chip" id="jz-floor">第 — 楼</span>
+      <span class="jz-chip" id="jz-time">时间未就位</span>
+    </div>
+  </div>
+
+  <div class="jz-bd">
+    <!-- 仪表盘：受辱充能、充能池（硬上限3）、本日进度 -->
+    <div class="jz-dashboard">
+      <!-- 1. 受辱充能进度条 -->
+      <div class="jz-metric-row">
+        <span class="jz-lbl">受辱充能</span>
+        <div class="jz-num-box">
+          <span class="jz-num" id="jz-shame">0</span>
+          <small>/100</small>
+        </div>
+        <div class="jz-bar">
+          <i id="jz-fill" style="background:linear-gradient(90deg, #7d2f38, #c94a53, var(--accent))"></i>
+        </div>
+        <span class="jz-chip" id="jz-ready">未充能</span>
+      </div>
+
+      <!-- 2. 充能池（硬上限 3） -->
+      <div class="jz-metric-row">
+        <span class="jz-lbl">充能池</span>
+        <div class="jz-num-box">
+          <span class="jz-num" id="jz-pool">0</span>
+          <small>/3次</small>
+        </div>
+        <div class="jz-pool-slots" id="jz-slots">
+          <span class="jz-slot-dot" data-slot="1" title="第1次注入机会"></span>
+          <span class="jz-slot-dot" data-slot="2" title="第2次注入机会"></span>
+          <span class="jz-slot-dot" data-slot="3" title="第3次注入机会"></span>
+        </div>
+        <span class="jz-chip" id="jz-lockchip">只涨不落</span>
+      </div>
+
+      <!-- 3. 本日进度 -->
+      <div class="jz-metric-row">
+        <span class="jz-lbl">本日进度</span>
+        <div class="jz-num-box">
+          <span class="jz-num" id="jz-today-gain" style="font-size:15px">0</span>
+          <small>/<span id="jz-today-max">300</span></small>
+        </div>
+        <div class="jz-bar">
+          <i id="jz-today-fill" style="background:linear-gradient(90deg, rgba(212,175,55,0.2), var(--accent-2))"></i>
+        </div>
+        <span class="jz-chip" id="jz-round-limit">单轮上限 1</span>
+      </div>
+    </div>
+
+    <!-- 各目标受辱抗性列表与当前系数 -->
+    <div class="jz-sec-hd">
+      <span class="jz-sec-title">目标受辱抗性与状态</span>
+      <span class="jz-sec-sub">1~4次×1.0 · 5~8次×0.6 · 9~12次×0.4 · 13+次/注入锁死×0.15</span>
+    </div>
+    <div class="jz-cast-grid" id="jz-cast-grid"></div>
+
+    <!-- 三态常识台账（生效中 / 已关闭 / 已撤回） -->
+    <div class="jz-sec-hd">
+      <span class="jz-sec-title">三态常识台账</span>
+      <div class="jz-ledger-filters" id="jz-filters">
+        <button type="button" class="jz-filter-btn active" data-filter="all">全部 (<span id="jz-cnt-all">0</span>)</button>
+        <button type="button" class="jz-filter-btn" data-filter="active">生效中 (<span id="jz-cnt-act">0</span>)</button>
+        <button type="button" class="jz-filter-btn" data-filter="closed">已关闭 (<span id="jz-cnt-cls">0</span>)</button>
+        <button type="button" class="jz-filter-btn" data-filter="revoked">已撤回 (<span id="jz-cnt-rvk">0</span>)</button>
+      </div>
+    </div>
+
+    <div class="jz-log-list" id="jz-log-list"></div>
+
+    <!-- 注入新常识命令行 -->
+    <div class="jz-inject-bar">
+      <select id="jz-who"></select>
+      <input id="jz-text" type="text" placeholder="写一句认知指令（消耗 1 次充能注入）" maxlength="120">
+      <button class="jz-btn" id="jz-add" type="button">注入常识</button>
+    </div>
+
+    <!-- 操作提示与错误面板 -->
+    <div class="jz-msg" id="jz-msg"></div>
+
+    <div class="jz-err-panel" id="jz-err-panel">
+      <div class="jz-err-title">
+        <span>⚠ 常识面板异常报告</span>
+        <button type="button" class="jz-btn danger" id="jz-copy-err" style="font-size:10px;padding:2px 6px;min-height:22px;">复制报错</button>
+      </div>
+      <div class="jz-err-text" id="jz-err-text"></div>
+    </div>
+
+    <!-- 自报状态栏 -->
+    <div class="jz-readout" id="jz-readout">
+      <span id="jz-ro-info">数据源：检测中...</span>
+      <span id="jz-ro-sync">楼层同步：—</span>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ── 修复 E-01：面板同样按全局名读酒馆助手接口 ──
+     实测 ST 1.18.0 + 酒馆助手 4.11.2：全局的 getCurrentMessageId / getLastMessageId /
+     getChatMessages / getVariables / replaceVariables / Mvu 都不存在，
+     接口在 TavernHelper.* 上。原实现拿不到 → jzMsgId() 返回 -1 → 读不到楼层变量，
+     面板永远显示 0/100、常识 0 条、楼层同步「—」。 */
+  function __thPick(name){
+    try { if (typeof window !== 'undefined' && typeof window[name] === 'function') return window[name].bind(window); } catch(e){}
+    try { if (typeof window !== 'undefined' && window[name] !== undefined && typeof window[name] !== 'function') return window[name]; } catch(e){}
+    try {
+      var h = (typeof window !== 'undefined') ? window.TavernHelper : null;
+      if (!h && typeof window !== 'undefined' && window.parent && window.parent !== window) h = window.parent.TavernHelper;
+      if (!h && typeof window !== 'undefined' && window.top && window.top.TavernHelper) h = window.top.TavernHelper;
+      if (h && typeof h[name] === 'function') return h[name].bind(h);
+      if (h && h[name] !== undefined) return h[name];
+    } catch(e){}
+    return undefined;
+  }
+  function __thR(name){ var f = __thPick(name); return (typeof f === 'function') ? f : null; }
+  function __thMvu(){
+    try { if (typeof window !== 'undefined' && window.Mvu && typeof window.Mvu.getMvuData === 'function') return window.Mvu; } catch(e){}
+    return __thPick('Mvu') || null;
+  }
+  function __thEv(){
+    var e = __thPick('eventOn');
+    if (typeof e === 'function') return e;
+    try { if (typeof window !== 'undefined' && typeof window.eventOn === 'function') return window.eventOn; } catch(e2){}
+    return null;
+  }
+  function __thTe(){
+    var t = __thPick('tavern_events');
+    return (t && typeof t === 'object') ? t : null;
+  }
+
+  /* ── 目标名单与外观：读 00-配置.js 暴露的 window.__CMNS ──
+     读不到时退到默认名单；面板在消息 iframe 里，所以先试 top / parent。 */
+  var CFG = (function () {
+    try { if (window.top && window.top.__CMNS) return window.top.__CMNS; } catch (e) {}
+    try { if (window.parent && window.parent.__CMNS) return window.parent.__CMNS; } catch (e) {}
+    try { if (window.__CMNS) return window.__CMNS; } catch (e) {}
+    return {};
+  })();
+  var FALLBACK_PERSONS = ['角色A', '角色B'];
+  var PERSONS = (Array.isArray(CFG.persons) && CFG.persons.length) ? CFG.persons.slice() : FALLBACK_PERSONS.slice();
+  var SHAME_ON = CFG.shameEconomy !== false;
+  var NEED_CHARGE = SHAME_ON && CFG.needCharge !== false;
+  var POOL_MAX = Math.max(1, Number(CFG.poolMax) || 3);
+  var SHOW_AXES = CFG.showAxes === true;
+
+  var PALETTE = ['#e07a82', '#82a8d8', '#6eb79c', '#f0b8c8', '#c9a4e8', '#b03a4a', '#d4af37', '#7fc7c0'];
+  var BASE = {};
+  var COLOR = {};
+  PERSONS.forEach(function (who, i) {
+    BASE[who] = '人物.' + who;
+    COLOR[who] = PALETTE[i % PALETTE.length];
+  });
+
+  // 立绘留空 → 显示纯色圆点，不依赖任何外部图床
+  var PIC = '';
+  var FALLBACK = '';
+  var VER = '';
+  var AV = {};
+  function varWhoCol(who) { return '#d4af37'; }
+
+  var BOX = '常识修改系统';
+  var currentFilter = 'all';
+  var askRevokeKey = '';
+  var lastErrorPayload = '';
+
+  /* 元素引用表 */
+  var el = {};
+  var IDS = [
+    'cert', 'cert-text', 'total', 'floor', 'time',
+    'shame', 'fill', 'ready', 'pool', 'slots', 'lockchip',
+    'today-gain', 'today-max', 'today-fill', 'round-limit',
+    'cast-grid', 'filters', 'cnt-all', 'cnt-act', 'cnt-cls', 'cnt-rvk',
+    'log-list', 'who', 'text', 'add',
+    'msg', 'err-panel', 'err-text', 'copy-err',
+    'readout', 'ro-info', 'ro-sync'
+  ];
+  IDS.forEach(function (id) {
+    var full = 'jz-' + id;
+    el[id] = document.getElementById(full);
+  });
+
+  /* 错误捕获与面板 */
+  function jzReportError(step, err) {
+    var msg = (err && err.message) ? err.message : String(err == null ? '未知异常' : err);
+    var stack = (err && err.stack) ? err.stack : '';
+    lastErrorPayload = '[' + step + '] ' + msg + (stack ? '\n' + stack : '');
+    try {
+      if (el['err-panel']) el['err-panel'].classList.add('show');
+      if (el['err-text']) el['err-text'].textContent = lastErrorPayload;
+      if (el.msg) {
+        el.msg.textContent = '面板在「' + step + '」发生异常，详见报错面板';
+        el.msg.setAttribute('data-t', 'err');
+      }
+    } catch (e) {}
+    try { console.error('[常识修改器·常识面板] ' + step + ' 出错:', err); } catch (e) {}
+  }
+
+  window.addEventListener('error', function (ev) {
+    jzReportError('全局未捕获异常', ev && (ev.error || ev.message));
+  });
+
+  /* 辅助函数 */
+  function num(v, d) {
+    var n = Number(v);
+    return Number.isFinite(n) ? n : (d || 0);
+  }
+
+  function esc(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+
+  function seedLogs() {
+    var o = {};
+    PERSONS.forEach(function (w) { o[w] = []; });
+    return o;
+  }
+
+  function dg(o, path, def) {
+    try {
+      var cur = o, parts = String(path == null ? '' : path).split('.');
+      for (var i = 0; i < parts.length; i++) {
+        if (cur == null) return def;
+        cur = cur[parts[i]];
+      }
+      return cur === undefined ? def : cur;
+    } catch (e) { return def; }
+  }
+
+  function say(t, kind) {
+    if (!el.msg) return;
+    el.msg.textContent = t || '';
+    if (kind) el.msg.setAttribute('data-t', kind);
+    else el.msg.removeAttribute('data-t');
+  }
+
+  function avatarImg(who) {
+    var f = AV[who];
+    if (!f) return '<span class="jz-char-avatar"></span>';
+    var enc = encodeURIComponent(f);
+    return '<img class="jz-char-avatar" src="' + PIC + enc + VER + '" data-fb="' + FALLBACK + enc + VER + '" alt="' + esc(who) + '" onerror="var d=this.dataset.fb;this.onerror=null;if(d){this.src=d;this.dataset.fb=\'\';}">';
+  }
+
+  /* 桥与数据访问 */
+  var BR = null;
+  try { BR = (window.top && window.top.__jzBridge) || null; } catch (e) {}
+  if (!BR) { try { BR = (window.parent && window.parent.__jzBridge) || null; } catch (e) {} }
+
+  function jzGetChat() {
+    var out = {};
+    try {
+      var __gv = __thR('getVariables');
+      if (__gv) {
+        var v = __gv({ type: 'chat' });
+        if (v && typeof v === 'object') Object.assign(out, v);
+      }
+    } catch (e) {}
+    try { if (BR && typeof BR.getChat === 'function') {
+      var bc = BR.getChat();
+      if (bc && typeof bc === 'object') Object.assign(out, bc);
+    }} catch (e) {}
+
+    try {
+      var M = findMvu();
+      if (M && typeof M.getMvuData === 'function') {
+        var id = jzMsgId();
+        if (id >= 0) {
+          var d1 = M.getMvuData({ type: 'message', message_id: id });
+          if (d1 && d1.stat_data && typeof d1.stat_data === 'object') Object.assign(out, d1.stat_data);
+        }
+        var dLatest = M.getMvuData({ type: 'message', message_id: 'latest' });
+        if (dLatest && dLatest.stat_data && typeof dLatest.stat_data === 'object') Object.assign(out, dLatest.stat_data);
+      }
+    } catch (e) {}
+
+    try {
+      var __gv2 = __thR('getVariables');
+      if (__gv2) {
+        var vm = __gv2({ type: 'message', message_id: 'latest' });
+        if (vm && vm.stat_data && typeof vm.stat_data === 'object') Object.assign(out, vm.stat_data);
+        else if (vm && typeof vm === 'object') Object.assign(out, vm);
+      }
+    } catch (e) {}
+
+    return Object.keys(out).length > 0 ? out : null;
+  }
+
+  function jzSetChat(v) {
+    try {
+      var __rep = __thR('replaceVariables');
+      var __gv3 = __thR('getVariables');
+      if (__rep) {
+        var cur = null;
+        try { if (__gv3) cur = __gv3({ type: 'chat' }); } catch (e) {}
+        var out = (cur && typeof cur === 'object') ? cur : {};
+        out[BOX] = v[BOX];
+        __rep(out, { type: 'chat' });
+        return true;
+      }
+    } catch (e) {}
+    try { if (BR && typeof BR.setChat === 'function') return !!BR.setChat(v); } catch (e) {}
+    return false;
+  }
+
+  function jzMsgId() {
+    var __cur = __thR('getCurrentMessageId');
+    try {
+      if (__cur) {
+        var a = Number(__cur());
+        if (Number.isFinite(a) && a >= 0) return a;
+      }
+    } catch (e) {}
+    try {
+      if (BR && typeof BR.msgId === 'function') {
+        var b = Number(BR.msgId());
+        if (Number.isFinite(b) && b >= 0) return b;
+      }
+    } catch (e) {}
+    var __last = __thR('getLastMessageId');
+    try { if (__last) { var n = Number(__last()); if (Number.isFinite(n) && n >= 0) return n; } } catch (e) {}
+    // 兜底：从 DOM 里数最后一个消息块
+    try {
+      var mes = document.querySelectorAll('.mes');
+      if (mes && mes.length) return mes.length - 1;
+    } catch (e) {}
+    return -1;
+  }
+
+  function findMvu() {
+    var cands = [];
+    try { if (typeof Mvu !== 'undefined' && Mvu) cands.push(Mvu); } catch (e) {}
+    try { if (window.Mvu) cands.push(window.Mvu); } catch (e) {}
+    try { if (window.TavernHelper && window.TavernHelper.Mvu) cands.push(window.TavernHelper.Mvu); } catch (e) {}
+    try { if (window.parent && window.parent !== window && window.parent.Mvu) cands.push(window.parent.Mvu); } catch (e) {}
+    try { if (window.top && window.top !== window && window.top.Mvu) cands.push(window.top.Mvu); } catch (e) {}
+    try { var __m = __thMvu(); if (__m) cands.push(__m); } catch (e) {}
+    for (var i = 0; i < cands.length; i++) {
+      var c = cands[i];
+      if (c && typeof c.getMvuData === 'function') return c;
+    }
+    return null;
+  }
+
+  function pushToFloor(box) {
+    try {
+      var id = jzMsgId();
+      if (id < 0) return false;
+      var M = findMvu();
+      if (!M) return false;
+      var data = M.getMvuData({ type: 'message', message_id: id });
+      void 0;
+      if (!data || typeof data !== 'object') return false;
+      if (!data.stat_data || typeof data.stat_data !== 'object') data.stat_data = {};
+      var copy = JSON.parse(JSON.stringify(box));
+      delete copy['_基线'];
+      delete copy['_基线字段'];
+      data.stat_data[BOX] = copy;
+      if (typeof M.replaceMvuData === 'function') {
+        M.replaceMvuData(data, { type: 'message', message_id: id });
+        return true;
+      }
+      // 兜底：用酒馆助手的变量写入接口
+      var __gvF = __thR('getVariables'), __repF = __thR('replaceVariables');
+      if (__repF) {
+        try {
+          var whole = __gvF ? __gvF({ type: 'message', message_id: id }) : null;
+          if (whole && typeof whole === 'object') { __repF(whole, { type: 'message', message_id: id }); return true; }
+        } catch (e) {}
+      }
+      return false;
+    } catch (e) {
+      console.warn('[常识修改器·常识面板] 楼层变量同步警告:', e);
+      return false;
+    }
+  }
+
+  function readBox() {
+    var v = jzGetChat();
+    if (!v || typeof v !== 'object') return null;
+    return (v[BOX] && typeof v[BOX] === 'object') ? v[BOX] : null;
+  }
+
+  function findRefresh() {
+    var cands = [];
+    try { if (typeof globalThis !== 'undefined') cands.push(globalThis); } catch (e) {}
+    try { if (typeof window !== 'undefined') cands.push(window); } catch (e) {}
+    try { if (window.parent && window.parent !== window) cands.push(window.parent); } catch (e) {}
+    try { if (window.top && cands.indexOf(window.top) < 0) cands.push(window.top); } catch (e) {}
+    for (var i = 0; i < cands.length; i++) {
+      try {
+        if (cands[i] && typeof cands[i].__jzRefreshCommonSense === 'function') {
+          return cands[i].__jzRefreshCommonSense;
+        }
+      } catch (e) {}
+    }
+    return null;
+  }
+
+  function refreshInjection(why) {
+    try {
+      if (BR && typeof BR.refresh === 'function') {
+        BR.refresh(why);
+        return true;
+      }
+    } catch (e) {}
+    var fn = findRefresh();
+    if (fn) {
+      try { fn(why); return true; } catch (e) {}
+    }
+    return false;
+  }
+
+  /* 注入自证探测 */
+  function detectInjectionSelfCert() {
+    var cands = [];
+    try { if (typeof window !== 'undefined') cands.push(window); } catch (e) {}
+    try { if (typeof window !== 'undefined' && window.parent) cands.push(window.parent); } catch (e) {}
+    try { if (typeof window !== 'undefined' && window.top) cands.push(window.top); } catch (e) {}
+    for (var i = 0; i < cands.length; i++) {
+      try {
+        var w = cands[i];
+        if (w.__commonSenseInjected && typeof w.__commonSenseInjected === 'object') {
+          return w.__commonSenseInjected;
+        }
+        if (w.__jzCommonSenseStatus && typeof w.__jzCommonSenseStatus === 'object') {
+          return w.__jzCommonSenseStatus;
+        }
+      } catch (e) {}
+    }
+    return null;
+  }
+
+  function updateSelfCertUI() {
+    var info = detectInjectionSelfCert();
+    if (info && (info.injectedChars != null || info.chars != null)) {
+      var chars = info.injectedChars != null ? info.injectedChars : info.chars;
+      el['cert-text'].textContent = '注入：正常 · ' + chars + ' 字符';
+      el.cert.classList.remove('warn');
+      el.cert.title = '注入通道正常，已向提示词单通道挂载 ' + chars + ' 字符（点击重新触发刷新）';
+    } else {
+      var hasRef = !!findRefresh();
+      if (hasRef) {
+        el['cert-text'].textContent = '注入：已就绪 · 点击自证';
+        el.cert.classList.remove('warn');
+        el.cert.title = '单通道脚本已就绪，点击立即触发自证注入刷新';
+      } else {
+        el['cert-text'].textContent = '注入：等待通道';
+        el.cert.classList.add('warn');
+        el.cert.title = '未收到注入脚本信号，请确保 03-常识注入.js 已启用';
+      }
+    }
+  }
+
+  /* 黑名单与受辱锁死判定 */
+  function blacklist(sys) {
+    return (sys && Array.isArray(sys['撤回黑名单'])) ? sys['撤回黑名单'] : [];
+  }
+
+  function isBlockedText(sys, who, text) {
+    var clean = String(text || '').replace(/\s+/g, '');
+    if (!clean) return false;
+    return blacklist(sys).some(function (x) {
+      return x && x.who === who && String(x.text || '').replace(/\s+/g, '') === clean;
+    });
+  }
+
+  /* 获取目标受辱抗性与系数 */
+  function getResistanceInfo(sys, who) {
+    var count = 0;
+    try {
+      var resDict = (sys && sys['受辱抗性']) || {};
+      count = num(resDict[who], 0);
+    } catch (e) {}
+
+    var isLocked = false;
+    try {
+      var lg = (sys && sys['修改日志'] && sys['修改日志'][who]) || [];
+      if (Array.isArray(lg) && lg.length > 0) isLocked = true;
+      if (isBlockedText(sys, who, '')) isLocked = true;
+      var bl = blacklist(sys);
+      if (bl.some(function (b) { return b && b.who === who; })) isLocked = true;
+    } catch (e) {}
+
+    var coef = 1.0;
+    var coefText = '×1.0';
+    if (isLocked) {
+      coef = 0.15;
+      coefText = '×0.15 (永久锁死)';
+    } else {
+      if (count <= 4) { coef = 1.0; coefText = '×1.0 (全额)'; }
+      else if (count <= 8) { coef = 0.6; coefText = '×0.6 (轻微衰减)'; }
+      else if (count <= 12) { coef = 0.4; coefText = '×0.4 (深度衰减)'; }
+      else { coef = 0.15; coefText = '×0.15 (收益锁死)'; }
+    }
+
+    return {
+      count: count,
+      coef: coef,
+      coefText: coefText,
+      locked: isLocked
+    };
+  }
+
+  /* 写入变量与基线同步 */
+  async function writeBox(mutate) {
+    var last = { ok: false, why: '无改动' };
+    for (var attempt = 0; attempt < 3; attempt++) {
+      var v = jzGetChat();
+      if (!v || typeof v !== 'object') v = {};
+      if (!v[BOX] || typeof v[BOX] !== 'object') v[BOX] = {};
+      var box = v[BOX];
+      if (!box['修改日志'] || typeof box['修改日志'] !== 'object') {
+        box['修改日志'] = seedLogs();
+      }
+      var r = mutate(box);
+      if (!r || r.ok !== true) return r || { ok: false, why: '未执行写入' };
+
+      if (!jzSetChat(v)) return { ok: false, why: '环境拒绝写入聊天变量' };
+
+      var back = readBox();
+      var msg = (typeof r.check === 'function') ? r.check(back) : (back ? '' : '回读不到常识变量');
+      if (!msg) {
+        r.floorOk = pushToFloor(v[BOX]);
+        return r;
+      }
+      last = { ok: false, why: '写入未落地: ' + msg };
+    }
+    return last;
+  }
+
+  /* 界面渲染 */
+  function paint() {
+    try {
+      var sys = readBox() || {};
+      var shame = Math.min(100, Math.max(0, Math.floor(num(sys['羞辱值'], 0))));
+      var pool = Math.min(3, Math.max(0, Math.floor(num(sys['充能池'] != null ? sys['充能池'] : sys['可用次数'], 0))));
+      var todayGain = Math.max(0, Math.floor(num(sys['本日获取'], 0)));
+      var todayMax = Math.max(1, Math.floor(num(sys['本日上限'], 300)));
+      var maxInject = Math.max(1, Math.floor(num(sys['单轮注入上限'], 1)));
+
+      // 1. 仪表盘数值与进度
+      if (el.shame) el.shame.textContent = shame;
+      if (el.fill) el.fill.style.width = shame + '%';
+      if (el.ready) {
+        if (pool > 0) {
+          el.ready.textContent = '充能池就绪 (' + pool + '次)';
+          el.ready.style.color = 'var(--ok)';
+        } else {
+          var remain = Math.max(0, 100 - shame);
+          el.ready.textContent = remain === 0 ? '满充即结算' : ('未充能·差 ' + remain);
+          el.ready.style.color = '';
+        }
+      }
+
+      // 充能池（硬上限3）槽位
+      if (el.pool) el.pool.textContent = pool;
+      var slotDots = el.slots ? el.slots.querySelectorAll('.jz-slot-dot') : [];
+      slotDots.forEach(function (dot, idx) {
+        if (idx < pool) dot.classList.add('active');
+        else dot.classList.remove('active');
+      });
+
+      // 本日进度
+      if (el['today-gain']) el['today-gain'].textContent = todayGain;
+      if (el['today-max']) el['today-max'].textContent = todayMax;
+      if (el['today-fill']) {
+        var pct = Math.min(100, Math.floor((todayGain / todayMax) * 100));
+        el['today-fill'].style.width = pct + '%';
+      }
+      if (el['round-limit']) el['round-limit'].textContent = '单轮上限 ' + maxInject;
+      if (el.lockchip) {
+        el.lockchip.textContent = sys['羞辱值锁定'] === false ? '看守已放开' : '只涨不落';
+      }
+      if (el.add) el.add.disabled = pool < 1;
+
+      // 时间与楼层
+      var curId = jzMsgId();
+      if (el.floor) el.floor.textContent = curId >= 0 ? ('第 ' + curId + ' 楼') : '第 — 楼';
+      var chatVars = jzGetChat() || {};
+      var timeObj = chatVars['时间'] || sys['时间'] || {};
+      if (el.time) {
+        var _d = timeObj['日期'] || timeObj['星期'] || '';
+        var _t = timeObj['时段'] || timeObj['钟点'] || '';
+        var _p = timeObj['地点'] || '';
+        var _line = _d + ((_d && _t) ? ' · ' : '') + _t + (((_d || _t) && _p) ? ' · ' : '') + _p;
+        if (!_line && timeObj['第几天'] != null) _line = '第 ' + timeObj['第几天'] + ' 天';
+        if (_line) { el.time.textContent = _line; el.time.style.display = ''; }
+        else { el.time.style.display = 'none'; }
+      }
+
+      // 2. 目标受辱抗性与状态卡片
+      var castHTML = '';
+      PERSONS.forEach(function (who) {
+        var baseKey = BASE[who];
+        var shVal = SHOW_AXES ? Math.min(100, Math.max(0, Math.floor(num(dg(chatVars, baseKey + '.羞耻'), 0)))) : 0;
+        var deVal = SHOW_AXES ? Math.min(100, Math.max(0, Math.floor(num(dg(chatVars, baseKey + '.欲望'), 0)))) : 0;
+        var hoVal = SHOW_AXES ? Math.min(100, Math.max(0, Math.floor(num(dg(chatVars, baseKey + '.好感度'), 0)))) : 0;
+        var voice = SHOW_AXES ? String(dg(chatVars, baseKey + '.心声') || '').trim() : '';
+        var res = getResistanceInfo(sys, who);
+        var col = COLOR[who] || varWhoCol(who);
+
+        castHTML += '<div class="jz-char-card" style="border-left-color:' + col + '">'
+          + '<div class="jz-char-top">'
+          + avatarImg(who)
+          + '<span class="jz-char-name" style="color:' + col + '">' + esc(who) + '</span>'
+          + (res.locked
+              ? '<span class="jz-char-locked-badge">锁死 ×0.15</span>'
+              : '<span class="jz-char-unlocked-badge">系数 ' + res.coefText.split(' ')[0] + '</span>')
+          + '</div>'
+          + (SHOW_AXES ? ('<div class="jz-char-axes">'
+            + '<div class="jz-axis-cell">'
+            + '<span>好</span>'
+            + '<span class="jz-axis-mini"><i style="width:' + hoVal + '%;background:var(--ok)"></i></span>'
+            + '<span style="font-family:var(--mono)">' + hoVal + '</span>'
+            + '</div>'
+            + '<div class="jz-axis-cell">'
+            + '<span>羞</span>'
+            + '<span class="jz-axis-mini"><i style="width:' + shVal + '%;background:' + col + '"></i></span>'
+            + '<span style="font-family:var(--mono)">' + shVal + '</span>'
+            + '</div>'
+            + '<div class="jz-axis-cell">'
+            + '<span>欲</span>'
+            + '<span class="jz-axis-mini"><i style="width:' + deVal + '%;background:var(--accent-2)"></i></span>'
+            + '<span style="font-family:var(--mono)">' + deVal + '</span>'
+            + '</div>'
+            + '</div>') : '')
+          + '<div class="jz-char-res">'
+          + '<span>受辱累计: <b>' + res.count + '</b> 次</span>'
+          + '<span>当前收益: <b>' + res.coefText + '</b></span>'
+          + '</div>'
+          + (voice ? ('<div class="jz-char-voice" title="' + esc(voice) + '">「' + esc(voice) + '」</div>') : '')
+          + '</div>';
+      });
+      if (el['cast-grid']) el['cast-grid'].innerHTML = castHTML;
+
+      // 3. 三态常识台账
+      var logs = (sys && sys['修改日志']) || {};
+      var allItems = [];
+
+      PERSONS.forEach(function (who) {
+        var arr = Array.isArray(logs[who]) ? logs[who] : [];
+        arr.forEach(function (it) {
+          if (!it || !it['内容']) return;
+          var text = String(it['内容']).trim();
+          var idNum = num(it.id, 0);
+          var isRevoked = (it['状态'] === '已撤回' || it['失效原因'] === '已撤回' || it['失效原因'] === '玩家主动撤回' || isBlockedText(sys, who, text));
+          var state = 'active';
+          if (isRevoked) state = 'revoked';
+          else if (it['启用'] === false || it['状态'] === '已关闭') state = 'closed';
+
+          allItems.push({
+            who: who,
+            id: idNum,
+            content: text,
+            state: state,
+            enabled: it['启用'] !== false && state === 'active',
+            reason: it['失效原因'] || ''
+          });
+        });
+      });
+
+      // 兼顾黑名单中由于旧版被 splice 但实际已作废的条目
+      var bl = blacklist(sys);
+      bl.forEach(function (b, bidx) {
+        if (!b || !b.who || !b.text) return;
+        var exists = allItems.some(function (item) {
+          return item.who === b.who && item.content.replace(/\s+/g, '') === String(b.text).replace(/\s+/g, '');
+        });
+        if (!exists) {
+          allItems.push({
+            who: b.who,
+            id: 900 + bidx,
+            content: String(b.text).trim(),
+            state: 'revoked',
+            enabled: false,
+            reason: '历史撤回'
+          });
+        }
+      });
+
+      // 计数统计
+      var cntAct = 0, cntCls = 0, cntRvk = 0;
+      allItems.forEach(function (item) {
+        if (item.state === 'active') cntAct++;
+        else if (item.state === 'closed') cntCls++;
+        else if (item.state === 'revoked') cntRvk++;
+      });
+      if (el['cnt-all']) el['cnt-all'].textContent = allItems.length;
+      if (el['cnt-act']) el['cnt-act'].textContent = cntAct;
+      if (el['cnt-cls']) el['cnt-cls'].textContent = cntCls;
+      if (el['cnt-rvk']) el['cnt-rvk'].textContent = cntRvk;
+      if (el.total) el.total.textContent = '生效 ' + cntAct + ' / 共 ' + allItems.length;
+
+      // 筛选展示
+      var filtered = allItems.filter(function (item) {
+        if (currentFilter === 'active') return item.state === 'active';
+        if (currentFilter === 'closed') return item.state === 'closed';
+        if (currentFilter === 'revoked') return item.state === 'revoked';
+        return true;
+      });
+
+      var listHTML = '';
+      if (!filtered.length) {
+        listHTML = '<div class="jz-empty">暂无该分类的常识条目。充能池满 100 获得可用次数后，可在此注入与管理三态生命期。</div>';
+      } else {
+        filtered.forEach(function (item) {
+          var itemKey = item.who + '#' + item.id;
+          var isAsking = askRevokeKey === itemKey;
+          var col = COLOR[item.who] || varWhoCol(item.who);
+
+          var tagClass = item.state === 'active' ? 'active' : (item.state === 'closed' ? 'closed' : 'revoked');
+          var tagText = item.state === 'active' ? '生效中' : (item.state === 'closed' ? '已关闭' : '已撤回');
+          var rowClass = item.state === 'active' ? 'st-active' : (item.state === 'closed' ? 'st-closed' : 'st-revoked');
+
+          listHTML += '<div class="jz-item ' + rowClass + '" data-who="' + esc(item.who) + '" data-id="' + esc(item.id) + '">'
+            + '<div class="jz-item-hd">'
+            + '<span class="jz-item-who" style="color:' + col + '">' + esc(item.who) + '</span>'
+            + '<span class="jz-item-id">#' + item.id + '</span>'
+            + '<span class="jz-tag-state ' + tagClass + '">' + tagText + '</span>'
+            + '<div class="jz-item-acts">';
+
+          if (item.state === 'active') {
+            listHTML += '<button type="button" class="jz-btn mini" data-act="toggle" data-to="false">关闭</button>'
+              + '<button type="button" class="jz-btn mini danger" data-act="ask">撤回</button>';
+          } else if (item.state === 'closed') {
+            listHTML += '<button type="button" class="jz-btn mini success" data-act="toggle" data-to="true">开启</button>'
+              + '<button type="button" class="jz-btn mini danger" data-act="ask">撤回</button>';
+          } else {
+            listHTML += '<span style="font-size:10px;color:var(--text-3)">永久作废</span>';
+          }
+
+          listHTML += '</div></div>'
+            + '<div class="jz-item-tx">' + esc(item.content) + '</div>';
+
+          if (isAsking) {
+            listHTML += '<div class="jz-confirm-row">'
+              + '<span class="jz-confirm-tx">确定彻底作废 ' + esc(item.who) + ' #' + item.id + ' 吗？永久撤回不可恢复。</span>'
+              + '<button type="button" class="jz-btn mini danger" data-act="do-revoke">确认撤回</button>'
+              + '<button type="button" class="jz-btn mini" data-act="cancel-revoke">取消</button>'
+              + '</div>';
+          }
+
+          listHTML += '</div>';
+        });
+      }
+      if (el['log-list']) el['log-list'].innerHTML = listHTML;
+
+      // 4. 自证与状态更新
+      updateSelfCertUI();
+      if (el['ro-info']) {
+        el['ro-info'].textContent = '数据源: ' + (readBox() ? '聊天变量(常识修改系统)' : '待初始化 → 查角色脚本勾选 / MVU 加载 / 是否旧聊天')
+          + ' | ' + (SHAME_ON ? '受辱充能 + 注入锁死机制生效中' : '自由注入模式');
+      }
+      if (el['ro-sync']) {
+        el['ro-sync'].textContent = '台账三态: ' + cntAct + '生效 / ' + cntCls + '关闭 / ' + cntRvk + '撤回'
+          + ' · 读到第 ' + (jzMsgId() >= 0 ? jzMsgId() : '—') + ' 楼';
+      }
+    } catch (e) {
+      jzReportError('渲染面板', e);
+    }
+  }
+
+  /* 注入常识动作 */
+  async function doAdd() {
+    try {
+      var who = el.who ? el.who.value : '';
+      var text = el.text ? String(el.text.value || '').trim() : '';
+      if (!who) { say('请选择目标人物', 'warn'); return; }
+      if (!text) { say('请输入常识内容', 'warn'); return; }
+
+      var r = await writeBox(function (sys) {
+        var lg = sys['修改日志'] || (sys['修改日志'] = {});
+        var arr = Array.isArray(lg[who]) ? lg[who] : (lg[who] = []);
+        if (arr.some(function (it) { return it && String(it['内容']).trim() === text; })) {
+          return { ok: false, why: '该条常识已存在于目标台账中' };
+        }
+        var curPool = Math.floor(num(sys['充能池'] != null ? sys['充能池'] : sys['可用次数'], 0));
+        if (NEED_CHARGE && curPool < 1) {
+          return { ok: false, why: '充能池次数不足，请先累计羞辱值至 100 转化充能' };
+        }
+
+        // 清理历史黑名单意图放行
+        if (Array.isArray(sys['撤回黑名单'])) {
+          sys['撤回黑名单'] = sys['撤回黑名单'].filter(function (x) {
+            return !(x && x.who === who && String(x.text || '').trim() === text);
+          });
+        }
+
+        var maxId = 0;
+        arr.forEach(function (it) {
+          var n = num(it && it.id, 0);
+          if (n > maxId) maxId = n;
+        });
+
+        arr.push({
+          id: maxId + 1,
+          '内容': text,
+          '启用': true,
+          '状态': '生效中',
+          '失效原因': '',
+          '已锁定受辱': true
+        });
+
+        // 扣除充能池（自由模式不扣）
+        var nextPool = NEED_CHARGE ? Math.max(0, curPool - 1) : curPool;
+        sys['充能池'] = nextPool;
+        sys['可用次数'] = nextPool;
+
+        return {
+          ok: true,
+          msg: '已为 ' + who + ' 注入常识 #' + (maxId + 1) + '，剩余可用充能: ' + nextPool,
+          check: function (box) {
+            var list = dg(box, '修改日志.' + who, []);
+            return (Array.isArray(list) && list.some(function (it) { return it && it['内容'] === text; }))
+              ? '' : '校验未检测到新条目';
+          }
+        };
+      });
+
+      say(r.msg || r.why, r.ok ? 'ok' : 'warn');
+      if (r.ok) {
+        if (el.text) el.text.value = '';
+        refreshInjection('面板注入');
+        paint();
+      }
+    } catch (e) {
+      jzReportError('注入新常识', e);
+    }
+  }
+
+  /* 切换开关（生效中 <-> 已关闭） */
+  async function doToggle(who, id, wantOn) {
+    try {
+      var r = await writeBox(function (sys) {
+        var lg = sys['修改日志'] || {};
+        var arr = Array.isArray(lg[who]) ? lg[who] : [];
+        var it = arr.find(function (x) { return x && num(x.id, 0) === id; });
+        if (!it) return { ok: false, why: '未找到 ' + who + ' #' + id };
+        if (it['状态'] === '已撤回') return { ok: false, why: '已撤回的条目不可直接开关' };
+
+        it['启用'] = wantOn;
+        it['状态'] = wantOn ? '生效中' : '已关闭';
+        it['失效原因'] = wantOn ? '' : '玩家手动关闭';
+
+        // 写入矫正记录
+        var old = String(sys['矫正记录'] || '');
+        var note = who + ' #' + id + ' 状态切换为: ' + it['状态'];
+        sys['矫正记录'] = (old ? (old + '；') : '') + note;
+        if (sys['矫正记录'].length > 300) sys['矫正记录'] = sys['矫正记录'].slice(-300);
+
+        return {
+          ok: true,
+          msg: '已' + (wantOn ? '开启' : '关闭') + ' ' + who + ' #' + id,
+          check: function (box) {
+            var it2 = (dg(box, '修改日志.' + who, []) || []).find(function (x) { return x && num(x.id, 0) === id; });
+            return (it2 && it2['启用'] === wantOn) ? '' : '回读校验未达预期';
+          }
+        };
+      });
+
+      say(r.msg || r.why, r.ok ? 'ok' : 'warn');
+      if (r.ok) {
+        refreshInjection('面板开关');
+        paint();
+      }
+    } catch (e) {
+      jzReportError('切换常识状态', e);
+    }
+  }
+
+  /* 彻底撤回常识 */
+  async function doRevoke(who, id) {
+    try {
+      var r = await writeBox(function (sys) {
+        var lg = sys['修改日志'] || {};
+        var arr = Array.isArray(lg[who]) ? lg[who] : [];
+        var it = arr.find(function (x) { return x && num(x.id, 0) === id; });
+        if (!it) return { ok: false, why: '未找到 ' + who + ' #' + id };
+
+        var text = String(it['内容'] || '').trim();
+        it['启用'] = false;
+        it['状态'] = '已撤回';
+        it['失效原因'] = '玩家主动撤回';
+
+        // 记入撤回黑名单防模型复活
+        var bl = Array.isArray(sys['撤回黑名单']) ? sys['撤回黑名单'] : (sys['撤回黑名单'] = []);
+        if (!bl.some(function (b) { return b && b.who === who && String(b.text || '').trim() === text; })) {
+          bl.push({ who: who, text: text });
+        }
+
+        // 写入矫正记录
+        var old = String(sys['矫正记录'] || '');
+        var note = who + ' #' + id + ' 已被玩家彻底撤回作废，不再生效。';
+        sys['矫正记录'] = (old ? (old + '；') : '') + note;
+        if (sys['矫正记录'].length > 300) sys['矫正记录'] = sys['矫正记录'].slice(-300);
+
+        return {
+          ok: true,
+          msg: '已彻底撤回 ' + who + ' #' + id,
+          check: function (box) {
+            var it2 = (dg(box, '修改日志.' + who, []) || []).find(function (x) { return x && num(x.id, 0) === id; });
+            return (it2 && it2['状态'] === '已撤回') ? '' : '回读校验未标记为已撤回';
+          }
+        };
+      });
+
+      askRevokeKey = '';
+      say(r.msg || r.why, r.ok ? 'ok' : 'warn');
+      if (r.ok) {
+        refreshInjection('面板撤回');
+        paint();
+      }
+    } catch (e) {
+      jzReportError('撤回常识', e);
+    }
+  }
+
+  /* 事件绑定 */
+  function bindEvents() {
+    // 注入按钮与回车
+    if (el.add) el.add.addEventListener('click', doAdd);
+    if (el.text) {
+      el.text.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') doAdd();
+      });
+    }
+
+    // 自证徽章点击重新刷新
+    if (el.cert) {
+      el.cert.addEventListener('click', function () {
+        refreshInjection('手动自证核验');
+        setTimeout(function () {
+          updateSelfCertUI();
+          say('已触发常识注入单通道刷新校验', 'ok');
+        }, 200);
+      });
+    }
+
+    // 复制报错信息
+    if (el['copy-err']) {
+      el['copy-err'].addEventListener('click', function () {
+        try {
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(lastErrorPayload || '无报错日志');
+            say('报错日志已复制到剪贴板', 'ok');
+          } else {
+            prompt('请复制以下报错日志：', lastErrorPayload);
+          }
+        } catch (e) {
+          say('复制失败，请在控制台查看', 'warn');
+        }
+      });
+    }
+
+    // 筛选 Tab 切换
+    if (el.filters) {
+      el.filters.addEventListener('click', function (e) {
+        var btn = e.target && e.target.closest('button[data-filter]');
+        if (!btn) return;
+        currentFilter = btn.getAttribute('data-filter') || 'all';
+        var btns = el.filters.querySelectorAll('button[data-filter]');
+        btns.forEach(function (b) { b.classList.toggle('active', b === btn); });
+        paint();
+      });
+    }
+
+    // 台账操作按钮（开关、撤回、确认撤回）
+    if (el['log-list']) {
+      el['log-list'].addEventListener('click', function (e) {
+        var btn = e.target && e.target.closest('button[data-act]');
+        if (!btn) return;
+        var itemEl = btn.closest('.jz-item');
+        if (!itemEl) return;
+        var who = itemEl.getAttribute('data-who');
+        var id = num(itemEl.getAttribute('data-id'), 0);
+        var act = btn.getAttribute('data-act');
+        var key = who + '#' + id;
+
+        if (act === 'toggle') {
+          var to = btn.getAttribute('data-to') === 'true';
+          doToggle(who, id, to);
+        } else if (act === 'ask') {
+          askRevokeKey = (askRevokeKey === key) ? '' : key;
+          paint();
+        } else if (act === 'cancel-revoke') {
+          askRevokeKey = '';
+          paint();
+        } else if (act === 'do-revoke') {
+          doRevoke(who, id);
+        }
+      });
+    }
+  }
+
+  /* iframe 自适应与初始化 */
+  function jzFit() {
+    try {
+      if (document.documentElement.style.getPropertyValue('--TH-viewport-height')) return;
+      var fe = window.frameElement;
+      if (!fe) return;
+      var h = Math.max(
+        document.body ? document.body.scrollHeight : 0,
+        document.documentElement ? document.documentElement.scrollHeight : 0
+      );
+      if (h > 0) fe.style.height = (h + 10) + 'px';
+    } catch (e) {}
+  }
+
+  function fillWhoOptions() {
+    if (!el.who) return;
+    el.who.innerHTML = PERSONS.map(function (w) {
+      return '<option value="' + esc(w) + '">' + esc(w) + '</option>';
+    }).join('');
+  }
+
+  function applyModeChrome() {
+    // 自由模式：隐藏受辱充能与本日进度两行，并把池子标签改成中性文案
+    if (SHAME_ON) return;
+    try {
+      var rows = document.querySelectorAll('.jz-metric-row');
+      if (rows[0]) rows[0].style.display = 'none';
+      if (rows[2]) rows[2].style.display = 'none';
+      var lbl = document.querySelectorAll('.jz-metric-row .jz-lbl');
+      if (lbl[1]) lbl[1].textContent = '注入次数';
+    } catch (e) {}
+    try {
+      var sub = document.querySelector('.jz-sec-sub');
+      if (sub) sub.textContent = '自由模式：不统计受辱抗性，注入只看单轮上限';
+    } catch (e) {}
+  }
+
+  function init() {
+    try {
+      fillWhoOptions();
+      applyModeChrome();
+      bindEvents();
+      paint();
+      jzFit();
+      setTimeout(jzFit, 500);
+      setTimeout(jzFit, 1500);
+
+      // 1. 全局与酒馆事件联动监听
+      var evOn = __thEv();   // 修复 E-08：全局拿不到时退到 TavernHelper.eventOn
+
+      var tev = __thTe();   // 修复 E-08b：全局拿不到时退到 TavernHelper.tavern_events
+      if (!tev) { try { if (typeof tavern_events !== 'undefined') tev = tavern_events; } catch(e){} }
+      if (!tev) { try { if (window.parent && window.parent.tavern_events) tev = window.parent.tavern_events; } catch(e){} }
+      if (!tev) { try { if (window.top && window.top.tavern_events) tev = window.top.tavern_events; } catch(e){} }
+
+      if (evOn && tev) {
+        try { if (tev.MESSAGE_RECEIVED) evOn(tev.MESSAGE_RECEIVED, function () { setTimeout(function(){ paint(); jzFit(); }, 60); }); } catch(e){}
+        try { if (tev.MESSAGE_SENT) evOn(tev.MESSAGE_SENT, function () { setTimeout(function(){ paint(); jzFit(); }, 60); }); } catch(e){}
+        try { if (tev.CHAT_COMPLETED) evOn(tev.CHAT_COMPLETED, function () { setTimeout(function(){ paint(); jzFit(); }, 60); }); } catch(e){}
+        try { if (tev.VARIABLE_UPDATE_ENDED) evOn(tev.VARIABLE_UPDATE_ENDED, function () { paint(); jzFit(); }); } catch(e){}
+      }
+
+      // 2. MVU 初始化与事件监听联动
+      var waitInit = __thR('waitGlobalInitialized');   // 修复 E-08c：同样走垫片
+      if (!waitInit) { try { if (typeof waitGlobalInitialized === 'function') waitInit = waitGlobalInitialized; } catch(e){} }
+      if (!waitInit) { try { if (window.parent && typeof window.parent.waitGlobalInitialized === 'function') waitInit = window.parent.waitGlobalInitialized; } catch(e){} }
+      if (!waitInit) { try { if (window.top && typeof window.top.waitGlobalInitialized === 'function') waitInit = window.top.waitGlobalInitialized; } catch(e){} }
+
+      if (waitInit) {
+        Promise.resolve().then(function () {
+          return waitInit('Mvu');
+        }).then(function (M) {
+          if (M && M.events && evOn) {
+            try {
+              evOn(M.events.VARIABLE_INITIALIZED, function () { paint(); jzFit(); });
+              evOn(M.events.VARIABLE_UPDATE_ENDED, function () { paint(); jzFit(); });
+            } catch (e) {}
+          }
+        }).catch(function () {});
+      }
+
+      // 3. 稳妥的高频与低频检测（每 1.2 秒比对一次数据指纹，保证回合推进后 100% 刷新）
+      var lastHash = '';
+      setInterval(function () {
+        try {
+          var b = readBox();
+          var t = jzGetChat();
+          var hash = JSON.stringify(b) + '|' + (t ? JSON.stringify(t['时间']) : '') + '|' + jzMsgId();
+          if (hash !== lastHash) {
+            lastHash = hash;
+            paint();
+            jzFit();
+          }
+        } catch(e){}
+      }, 1200);
+
+      // 4. 窗口聚焦与消息通信联动
+      window.addEventListener('focus', function () { paint(); jzFit(); });
+      window.addEventListener('message', function (ev) {
+        if (ev && ev.data && (ev.data.type === 'variable-update' || ev.data.action === 'repaint' || ev.data.type === 'set-iframe-height')) {
+          paint(); jzFit();
+        }
+      });
+
+      window.__jzRepaint = function () {
+        try { paint(); jzFit(); } catch (e) { jzReportError('外部重画触发', e); }
+      };
+    } catch (e) {
+      jzReportError('初始化', e);
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+</script>
+</body>
+</html>
+```
