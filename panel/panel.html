@@ -621,6 +621,51 @@
     .jz-btn { min-height: 32px; }
   }
 </style>
+<!-- compact-layout:begin -->
+<style>
+  /* ── B 版式 · 紧凑双栏（覆盖式，不改 JS） ── */
+  .jz-hd { padding: 6px 10px; }
+  .jz-bd { padding: 8px 10px 10px; }
+  .jz-dashboard .jz-metric-row:nth-child(3) { display: none; }      /* 本日进度：规则细节，收起 */
+  .jz-sec-sub { display: none; }                                     /* 系数说明那行小字 */
+  .jz-sec-hd { padding: 6px 0 2px; }
+  .jz-cast-grid { display: block; }
+  .jz-char-card {
+    display: grid;
+    grid-template-columns: 118px 1fr;
+    grid-template-areas: "top axes" "voice voice";
+    gap: 1px 10px;
+    padding: 3px 8px 4px;
+    margin: 0 0 2px;
+    background: transparent;
+    border: 0;
+    border-left: 2px solid currentColor;
+    border-radius: 4px;
+  }
+  .jz-char-top { grid-area: top; }
+  .jz-char-name { font-size: 12px; }
+  .jz-char-locked-badge, .jz-char-unlocked-badge { font-size: 9px; padding: 0 4px; }
+  .jz-char-axes { grid-area: axes; display: flex; gap: 12px; align-items: center; }
+  .jz-axis-cell { display: flex; align-items: center; gap: 4px; font-size: 10px; }
+  .jz-axis-mini { width: 42px; height: 3px; }
+  .jz-char-res { display: none; }                                    /* 受辱累计/系数：收起 */
+  .jz-char-voice {
+    grid-area: voice;
+    margin-top: 1px;
+    font-size: 11px;
+    line-height: 1.4;
+    opacity: .72;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .jz-char-avatar { width: 10px; height: 10px; }
+  @media (max-width: 560px) {
+    .jz-char-card { grid-template-columns: 96px 1fr; }
+    .jz-axis-mini { width: 26px; }
+  }
+</style>
+<!-- compact-layout:end -->
 </head>
 <body>
 <div class="jz-wrap">
