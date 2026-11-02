@@ -632,7 +632,7 @@
   .jz-cast-grid { display: block; }
   .jz-char-card {
     display: grid;
-    grid-template-columns: 118px 1fr;
+    grid-template-columns: 136px 1fr;
     grid-template-areas: "top axes" "voice voice";
     gap: 1px 10px;
     padding: 3px 8px 4px;
@@ -643,7 +643,7 @@
     border-radius: 4px;
   }
   .jz-char-top { grid-area: top; }
-  .jz-char-name { font-size: 12px; }
+  .jz-char-name { font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .jz-char-locked-badge, .jz-char-unlocked-badge { font-size: 9px; padding: 0 4px; }
   .jz-char-axes { grid-area: axes; display: flex; gap: 12px; align-items: center; }
   .jz-axis-cell { display: flex; align-items: center; gap: 4px; font-size: 10px; }
